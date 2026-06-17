@@ -117,6 +117,7 @@ let dragEdge = null;
 let pan = null;
 let applyingRemoteState = false;
 let remoteSaveTimer = null;
+let localSaveTimer = null;
 
 function edge(from, to, tone = "green", mid = null, fromAnchor = "right", toAnchor = "left") {
   return { id: `edge-${from}-${to}-${Math.random().toString(16).slice(2)}`, from, to, tone, mid, fromAnchor, toAnchor };
@@ -158,10 +159,16 @@ function normalizeState(nextState) {
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  clearTimeout(localSaveTimer);
+  localSaveTimer = setTimeout(persistState, 650);
+}
+
+function persistState() {
+  const serialized = JSON.stringify(state);
+  localStorage.setItem(STORAGE_KEY, serialized);
   if (location.protocol.startsWith("http") && !applyingRemoteState) {
     clearTimeout(remoteSaveTimer);
-    remoteSaveTimer = setTimeout(pushRemoteState, 350);
+    remoteSaveTimer = setTimeout(() => pushRemoteState(serialized), 450);
   }
 }
 
@@ -629,14 +636,12 @@ function readImageFile(file, nodeId) {
   if (!file || !file.type.startsWith("image/")) return;
   const node = getNode(nodeId);
   if (!node) return;
-  const reader = new FileReader();
-  reader.onload = () => {
+  imageFileToDataUrl(file).then((dataUrl) => {
     node.kind = "image";
-    node.image = reader.result;
+    node.image = dataUrl;
     if (!node.title || node.title === "流程截图") node.title = file.name.replace(/\.[^.]+$/, "");
     render();
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 function createImageNodeFromFile(file, point) {
@@ -752,14 +757,38 @@ async function setupRemoteSync() {
   });
 }
 
-async function pushRemoteState() {
+async function pushRemoteState(serialized = JSON.stringify(state)) {
   try {
     await fetch("/api/state", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(state),
+      body: serialized,
     });
   } catch {
     // Local editing still works if the optional sync server is unavailable.
   }
+}
+
+function imageFileToDataUrl(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => {
+        const maxSide = 1600;
+        const ratio = Math.min(1, maxSide / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * ratio));
+        const height = Math.max(1, Math.round(image.height * ratio));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      image.onerror = () => resolve(reader.result);
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
