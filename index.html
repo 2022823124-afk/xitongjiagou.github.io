@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>大促分析决策画布</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="side-panel" aria-label="流程图控制面板">
+        <div class="brand-block">
+          <p class="eyebrow">INFINITE DECISION CANVAS</p>
+          <h1>大促分析<br />决策画布</h1>
+          <p class="summary">像 Figma 一样拖动画布、缩放视图、继续往后叠加分支。截图节点可上传照片，连线也可以编辑走向。</p>
+        </div>
+
+        <section class="control-group" aria-label="添加节点">
+          <button id="add-node" type="button">添加流程节点</button>
+          <button id="add-decision" type="button">添加决策分支</button>
+          <button id="add-note" type="button">添加备注条</button>
+          <button id="add-shot" type="button">添加截图节点</button>
+          <label class="upload-button">
+            上传到选中节点
+            <input id="image-input" type="file" accept="image/*" />
+          </label>
+        </section>
+
+        <section class="inspector" aria-label="节点编辑">
+          <div class="inspector-head">
+            <span>NODE EDITOR</span>
+            <strong id="selected-code">未选中</strong>
+          </div>
+          <label>
+            标题
+            <input id="node-title" type="text" placeholder="选择节点后编辑" />
+          </label>
+          <label>
+            说明
+            <textarea id="node-desc" rows="4" placeholder="记录判断依据、截图说明或下一步"></textarea>
+          </label>
+          <label>
+            类型
+            <select id="node-kind">
+              <option value="red">红色流程</option>
+              <option value="green">绿色方案</option>
+              <option value="white">白色备注</option>
+              <option value="decision">决策菱形</option>
+              <option value="bubble">回访气泡</option>
+              <option value="image">截图节点</option>
+            </select>
+          </label>
+          <div class="split-actions">
+            <button id="link-selected" type="button">连接到上个节点</button>
+            <button id="delete-node" type="button">删除节点</button>
+          </div>
+        </section>
+
+        <section class="inspector edge-editor" aria-label="连线编辑">
+          <div class="inspector-head">
+            <span>EDGE EDITOR</span>
+            <strong id="edge-status">未选中</strong>
+          </div>
+          <button id="connect-mode" type="button">从选中节点开始连线</button>
+          <div class="split-actions">
+            <button id="reverse-edge" type="button">反转箭头</button>
+            <button id="straighten-edge" type="button">拉直线</button>
+          </div>
+          <button id="delete-edge" type="button">删除选中连线</button>
+        </section>
+
+        <section class="control-group compact" aria-label="画布操作">
+          <button id="fit-view" type="button">适配全部内容</button>
+          <button id="actual-size" type="button">100% 视图</button>
+          <button id="export-json" type="button">导出 JSON</button>
+          <label class="upload-button">
+            导入 JSON
+            <input id="import-json" type="file" accept="application/json,.json" />
+          </label>
+          <button id="reset-board" type="button">恢复完整参考框架</button>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">DRAG CANVAS / EDIT EDGES / UPLOAD SCREENSHOTS</p>
+            <h2>节点、阶段框、箭头走向都可以继续调整</h2>
+          </div>
+          <div class="zoom-bar" aria-label="缩放控制">
+            <button id="zoom-out" type="button">−</button>
+            <input id="zoom-range" type="range" min="20" max="180" value="62" />
+            <button id="zoom-in" type="button">+</button>
+            <span id="zoom-readout">62%</span>
+          </div>
+        </header>
+
+        <div id="viewport" class="viewport">
+          <div id="stage" class="stage">
+            <div class="infinite-grid" aria-hidden="true"></div>
+            <div id="frame-layer" class="frame-layer"></div>
+            <svg id="edge-layer" class="edge-layer" aria-hidden="true"></svg>
+            <div id="node-layer" class="node-layer"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
