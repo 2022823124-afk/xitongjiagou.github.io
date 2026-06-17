@@ -4,7 +4,13 @@
 
 [点击进入流程图网页](https://2022823124-afk.github.io/xitongjiagou.github.io/)
 
-如果上面的链接暂时打不开，请到仓库的 **Settings → Pages**，把部署来源设置为 **GitHub Actions**，然后等待 Actions 部署完成。
+如果上面的链接暂时打不开，请到仓库的 **Settings → Pages**：
+
+1. **Source** 选择 `Deploy from a branch`
+2. **Branch** 选择 `main`
+3. 文件夹选择 `/ (root)`
+4. 点击 **Save**
+5. 等 1-3 分钟后再打开上面的网页链接
 
 ## 说明
 
